@@ -7,13 +7,13 @@ namespace SharingTransactionApp.Models
 {
     public class Transaction
     {
-        public Guid Id { get; set; }
-        public DateTime Date { get; set; }
-        public AppUser Creator { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public IEnumerable<UserConfirmation> Shareholders { get; set; }
-        public double Cash { get; set; }
-        public Guid File { get; set; }
+        public virtual Guid Id { get; set; }
+        public virtual DateTime Date { get; set; }
+        public virtual AppUser Creator { get; set; }
+        public virtual string Title { get; set; }
+        public virtual string Description { get; set; }
+        public virtual IEnumerable<UserConfirmation> Shareholders { get; set; }
+        public virtual double Cash { get; set; }
+        public virtual Guid File { get; set; }
     }
 }

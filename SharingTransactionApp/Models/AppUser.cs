@@ -7,8 +7,8 @@ namespace SharingTransactionApp.Models
 {
     public class AppUser
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Email { get; set; }
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; }
+        public virtual string Email { get; set; }
     }
 }

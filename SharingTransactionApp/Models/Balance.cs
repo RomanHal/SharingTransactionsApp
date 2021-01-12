@@ -7,9 +7,9 @@ namespace SharingTransactionApp.Models
 {
     public class Balance
     {
-        public Guid Id { get; set; }
-        public AppUser PersonPlus { get; set; }
-        public AppUser PersonMinus { get; set; }
-        public double CashBalance { get; set; }
+        public virtual Guid Id { get; set; }
+        public virtual AppUser PersonPlus { get; set; }
+        public virtual AppUser PersonMinus { get; set; }
+        public virtual double CashBalance { get; set; }
     }
 }

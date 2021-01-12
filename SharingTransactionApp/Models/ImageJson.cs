@@ -8,9 +8,9 @@ namespace SharingTransactionApp.Models
 {
     public class ImageJson
     {
-        public Guid Id { get; set; }
-        public FormatEnum Format { get; set; }
-        public string Data { get; set; }
+        public virtual Guid Id { get; set; }
+        public virtual FormatEnum Format { get; set; }
+        public virtual string Data { get; set; }
 
     }
 }
