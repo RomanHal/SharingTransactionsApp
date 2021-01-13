@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
-using SharingTransactionApp.Models.Inerfaces;
+﻿using SharingTransactionApp.Models.Inerfaces;
+using NHibernate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +9,11 @@ namespace SharingTransactionApp.Models
 {
     public class BalanceService:IBalanceService
     {
-        private readonly IMongoService _service;
+        private readonly ISession _session;
 
-        public BalanceService(IMongoService service)
+        public BalanceService(ISession session)
         {
-            _service = service;
+            _session = session;
         }
 
         public static double GetBalance(string name, Balance balance)
@@ -24,7 +22,12 @@ namespace SharingTransactionApp.Models
         }
         public IEnumerable<UserBalance> GetBalances(string name)
         {
-            var balances= _service.BalanceCollection.Find(e => e.PersonMinus.Name == name || e.PersonPlus.Name == name).ToList();
+            IEnumerable<Balance> balances;
+            using(_session.BeginTransaction())
+            {
+                balances = _session.Query<Balance>().Where(e => e.PersonMinus.Name == name || e.PersonPlus.Name == name).ToList();
+                _session.GetCurrentTransaction()?.Commit();
+            }
             var userBalances = balances.Select(b =>new UserBalance {
                 Name=b.PersonMinus.Name==name?b.PersonPlus.Name:b.PersonMinus.Name, 
                 Cash=GetBalance(name,b)

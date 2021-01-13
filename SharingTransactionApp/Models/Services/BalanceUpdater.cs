@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using NHibernate;
 using SharingTransactionApp.Models.Inerfaces;
 using System;
 using System.Collections.Generic;
@@ -9,13 +10,11 @@ namespace SharingTransactionApp.Models.Services
 {
     public class BalanceUpdater: IBalanceUpdater
     {
-        private readonly IMongoService _service;
-        private IMongoCollection<Balance> _balanceColl;
+        private readonly ISession _session;
 
-        public BalanceUpdater(IMongoService service)
+        public BalanceUpdater(ISession session)
         {
-            _service = service;
-            _balanceColl = _service.BalanceCollection;
+            _session = session;
         }
         public bool UpdateBalance(Transaction transaction)
         {
@@ -27,16 +26,23 @@ namespace SharingTransactionApp.Models.Services
             {
                 System.Linq.Expressions.Expression<Func<Balance, bool>> filter = b =>
                                       (b.PersonMinus == creator && b.PersonPlus == shareholder) || (b.PersonPlus == creator && b.PersonMinus == shareholder);
-                var balance = _balanceColl.Find(filter).FirstOrDefault();
-                if (balance is null)
+                Balance balance;
+                using(_session.BeginTransaction())
                 {
-                    balance = new Balance {Id=Guid.NewGuid(), PersonPlus = creator, PersonMinus = shareholder, CashBalance = cash / division };
-                    _balanceColl.InsertOne(balance);
-                    return true;
+                   balance = _session.Query<Balance>().Where(filter).FirstOrDefault();
+
+                    if (balance is null)
+                    {
+                        balance = new Balance { Id = Guid.NewGuid(), PersonPlus = creator, PersonMinus = shareholder, CashBalance = cash / division };
+                        _session.Save(balance);
+                        return true;
+                    }
+                    else if (balance.PersonPlus == creator) balance.CashBalance += cash / division;
+                    else balance.CashBalance -= cash / division;
+                    _session.Update(balance);
+                    _session.GetCurrentTransaction()?.Commit();
                 }
-                else if (balance.PersonPlus == creator) balance.CashBalance += cash / division;
-                else balance.CashBalance -= cash / division;
-                _balanceColl.ReplaceOne(filter, balance);
+
             }
 
 

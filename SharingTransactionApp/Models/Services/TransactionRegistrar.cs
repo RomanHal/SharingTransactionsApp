@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using NHibernate;
 using SharingTransactionApp.Enums;
 using SharingTransactionApp.Models.Inerfaces;
 using System;
@@ -10,19 +11,23 @@ namespace SharingTransactionApp.Models.Services
 {
     public class TransactionRegistrar: ITransactionRegistrar
     {
-        private readonly IMongoService _service;
+        private readonly ISession _session;
 
-        public TransactionRegistrar(IMongoService service)
+        public TransactionRegistrar(ISession session)
         {
-            _service = service;
+            _session = session;
         }
         public bool Register(TransactionInput transaction,string author)
         {
             var decoded = Translate(transaction);
             decoded.transaction.Creator = GetUser(author);
             decoded.transaction.Shareholders = GetShareholders(transaction.Shareholders, author);
-            _service.ImageJsonCollection.InsertOne(decoded.image);
-            _service.TransactionCollection.InsertOne(decoded.transaction);
+            using(_session.BeginTransaction())
+            {
+                _session.Save(decoded.image);
+                _session.Save(decoded.transaction);
+                _session.GetCurrentTransaction()?.Commit();
+            }
             return true;
         }
         private (Transaction transaction,ImageJson image) Translate(TransactionInput input)
@@ -52,7 +57,7 @@ namespace SharingTransactionApp.Models.Services
 
         private AppUser GetUser(string name)
         {
-            return _service.UsersCollection.Find(user=>user.Name==name).First();
+            return _session.Query<AppUser>().Where(user=>user.Name==name).First();
         }
         private FormatEnum GetFormat(string format)
         {
