@@ -13,11 +13,11 @@ namespace SharingTransactionApp.Mapping
         {
             Table(nameof(Transaction));
             Id(c => c.Id);
-            Map(c => c.Shareholders);
+            HasMany(c => c.Shareholders);
             Map(c => c.File).Column("FileID");
             Map(c => c.Date);
             Map(c => c.Cash);
-            Map(c => c.Creator);
+            References(c => c.Creator);
             Map(c => c.Description);
             Map(c => c.Title);
             

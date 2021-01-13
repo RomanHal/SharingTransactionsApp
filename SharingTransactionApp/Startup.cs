@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
+using SharingTransactionApp.Config;
 
 namespace SharingTransactionApp
 {
@@ -33,15 +34,7 @@ namespace SharingTransactionApp
 
             services.AddControllersWithViews();
             
-            services.Configure<SettingsDB>(options =>
-            {
-                options.ConnectionString = Configuration.GetSection("MongoConnection:ConnectionString").Value;
-                options.DatabaseName = Configuration.GetSection("MongoConnection:DatabaseName").Value;
-                options.StorageCollectionName = Configuration.GetSection("MongoConnection:StorageCollectionName").Value;
-            });
-            services.AddSingleton<ISettingsDB>(sp =>
-                sp.GetRequiredService<IOptions<SettingsDB>>().Value);
-            services.AddSingleton<IMongoService>(sp=>new MongoService(sp.GetRequiredService<ISettingsDB>()));
+            services.AddNhibernate(Configuration.GetSection("Postgres:ConnectionString").Value,true);
             services.AddScoped<ITransactionRegistrar, TransactionRegistrar>();
             services.AddScoped<IBalanceService, BalanceService>();
             services.AddScoped<IBalanceUpdater, BalanceUpdater>();

@@ -1,8 +1,11 @@
-﻿namespace SharingTransactionApp.Models
+﻿using System;
+
+namespace SharingTransactionApp.Models
 {
     public class UserConfirmation
     {
-        public AppUser Person { get; set; }
-        public bool Confirmation { get; set; }
+        public virtual Guid Id { get; set; }
+        public virtual AppUser Person { get; set; }
+        public virtual bool Confirmation { get; set; }
     }
 }
