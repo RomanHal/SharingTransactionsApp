@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using NHibernate;
+using SharingTransactionApp.Models;
 using SharingTransactionApp.Models.Inerfaces;
 using System;
 using System.Collections.Generic;
@@ -13,16 +14,16 @@ namespace SharingTransactionApp.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IMongoService _service;
+        private readonly ISession _session;
 
-        public UserController(IMongoService service)
+        public UserController(ISession session)
         {
-            _service = service;
+            _session = session;
         }
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            var list =  _service.UsersCollection.Find(_=>true).ToList();
+            var list =  _session.Query<AppUser>().ToList();
             var slist = list.Select(u => u.Name);
             return slist;
         }

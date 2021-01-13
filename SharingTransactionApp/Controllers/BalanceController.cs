@@ -13,12 +13,12 @@ namespace SharingTransactionApp.Controllers
     [ApiController]
     public class BalanceController : ControllerBase
     {
-        private readonly IMongoService _service;
+        private readonly ISession _session;
         private readonly IBalanceService _balanceService;
 
-        public BalanceController(IMongoService service,IBalanceService balanceService)
+        public BalanceController(ISession session,IBalanceService balanceService)
         {
-            _service = service;
+            _session = session;
             _balanceService = balanceService;
         }
         [HttpGet]

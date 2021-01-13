@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using NHibernate;
 using SharingTransactionApp.Models;
 using SharingTransactionApp.Models.Inerfaces;
 using System;
@@ -14,11 +14,11 @@ namespace SharingTransactionApp.Controllers
     [ApiController]
     public class ImageController : ControllerBase
     {
-        private readonly IMongoService _service;
+        private readonly ISession _session;
 
-        public ImageController(IMongoService service)
+        public ImageController(ISession session)
         {
-            _service = service;
+            _session = session;
         }
 
         [HttpGet]
@@ -26,10 +26,10 @@ namespace SharingTransactionApp.Controllers
         {
             
             var activeUser = User.Claims.Where(c => c.Type == "name").FirstOrDefault().Value;
-            var transaction = _service.TransactionCollection.Find(tr => tr.File == id).FirstOrDefault();
+            var transaction = _session.Query<Transaction>().Where(tr => tr.File == id).FirstOrDefault();
             if (transaction is null) return null;
-           // if (transaction.Creator.Name != activeUser || transaction.Shareholders.Any(sh => sh.Person.Name == activeUser)) return null;
-            return _service.ImageJsonCollection.Find(im => im.Id == id).FirstOrDefault();
+            if (transaction.Creator.Name != activeUser || transaction.Shareholders.Any(sh => sh.Person.Name == activeUser)) return null;
+            return _session.Query<ImageJson>().Where(im => im.Id == id).FirstOrDefault();
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using SharingTransactionApp.Models;
@@ -9,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NHibernate;
 
 namespace SharingTransactionApp.Controllers
 {
@@ -17,14 +17,14 @@ namespace SharingTransactionApp.Controllers
     public class ConfirmationController : ControllerBase
     {
         private readonly ILogger<ConfirmationController> _logger;
+        private readonly ISession _session;
         private readonly IBalanceUpdater _balanceUpdater;
-        private IMongoCollection<Transaction> _transactionCollection;
 
-        public ConfirmationController(ILogger<ConfirmationController> logger,IMongoService mongoService,IBalanceUpdater balanceUpdater)
+        public ConfirmationController(ILogger<ConfirmationController> logger,ISession session,IBalanceUpdater balanceUpdater)
         {
             _logger = logger;
+            _session = session;
             _balanceUpdater = balanceUpdater;
-            _transactionCollection = mongoService.TransactionCollection;
         }
 
         [HttpGet]
@@ -33,7 +33,7 @@ namespace SharingTransactionApp.Controllers
             if (User.Claims is null) return null;
 
             var activeUser = User.Claims.Where(c => c.Type == "name").FirstOrDefault().Value;
-            return _transactionCollection.Find(transaction => 
+            return _session.Query<Transaction>().Where(transaction => 
                 transaction.Shareholders.Any(sh => sh.Person.Name == activeUser && sh.Confirmation == false)).ToList().Select(tr=>new TransactionBasic(tr,activeUser));
         }
         [HttpPost]
@@ -42,7 +42,8 @@ namespace SharingTransactionApp.Controllers
             if (User.Claims is null) return BadRequest();
 
             var activeUser = User.Claims.Where(c => c.Type == "name").FirstOrDefault().Value;
-            var transaction = _transactionCollection.Find(tr=> tr.Id == id.Data).ToEnumerable().First();
+            
+            var transaction = _session.Query<Transaction>().Where(tr=> tr.Id == id.Data).First();
             if (transaction is null) return BadRequest();
             if (transaction.Shareholders.Any(s => s.Confirmation == true && s.Person.Name == activeUser)) return BadRequest();
             transaction.Shareholders = transaction.Shareholders.Select(sh =>
@@ -51,8 +52,11 @@ namespace SharingTransactionApp.Controllers
                 return sh;
             });
             if (transaction.Shareholders is null) return BadRequest();
-
-            _transactionCollection.ReplaceOne(tr => tr.Id == transaction.Id,transaction);
+            using(_session.BeginTransaction())
+            {
+                _session.Update(transaction);
+                _session.GetCurrentTransaction()?.Commit();
+            }
             if (transaction.Shareholders.All(sh => sh.Confirmation == true)) _balanceUpdater.UpdateBalance(transaction);
 
             return Ok();
