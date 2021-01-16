@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharingTransactionApp", "Sh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdServer", "IdServer\IdServer.csproj", "{1659E4C2-2283-4CA8-A648-DAECE8B48ADE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharingTransactionAppTests", "NUnitTestProject1\SharingTransactionAppTests.csproj", "{44F81A6E-4179-4422-8C11-7E82EB2069DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{1659E4C2-2283-4CA8-A648-DAECE8B48ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1659E4C2-2283-4CA8-A648-DAECE8B48ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1659E4C2-2283-4CA8-A648-DAECE8B48ADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44F81A6E-4179-4422-8C11-7E82EB2069DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44F81A6E-4179-4422-8C11-7E82EB2069DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44F81A6E-4179-4422-8C11-7E82EB2069DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44F81A6E-4179-4422-8C11-7E82EB2069DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
