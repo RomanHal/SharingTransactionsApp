@@ -22,13 +22,13 @@ namespace SharingTransactionApp.Models.Services
         {
             return name == balance.PersonPlus.Name ? balance.CashBalance : -balance.CashBalance;
         }
-        public IEnumerable<UserBalance> GetBalances(string name)
+        public IList<UserBalance> GetBalances(string name)
         {
             var balances= _service.BalanceCollection.Find(e => e.PersonMinus.Name == name || e.PersonPlus.Name == name).ToList();
             var userBalances = balances.Select(b =>new UserBalance {
                 Name=b.PersonMinus.Name==name?b.PersonPlus.Name:b.PersonMinus.Name, 
                 Cash=GetBalance(name,b)
-            });
+            }).ToList();
             return userBalances;
         }
     }

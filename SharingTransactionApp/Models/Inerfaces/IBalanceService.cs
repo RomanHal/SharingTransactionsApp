@@ -7,6 +7,6 @@ namespace SharingTransactionApp.Models.Inerfaces
 {
     public interface IBalanceService
     {
-        public IEnumerable<UserBalance> GetBalances(string name);
+        public IList<UserBalance> GetBalances(string name);
     }
 }
